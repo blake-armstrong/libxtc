@@ -41,8 +41,8 @@ set_target_properties(xtc PROPERTIES
 # Include directories
 target_include_directories(xtc
     PUBLIC
-        $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/libxtc>
-        $<INSTALL_INTERFACE:include/xtc>
+        $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
+        $<INSTALL_INTERFACE:include>
 )
 
 # Link OpenMP if available
@@ -69,7 +69,7 @@ install(TARGETS xtc
     LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
     ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
     RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
-    PUBLIC_HEADER DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/xtc
+    PUBLIC_HEADER DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/libxtc
 )
 
 # Install export targets

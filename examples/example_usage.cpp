@@ -2,7 +2,7 @@
  * Example usage of the XTCReader C++ class
  */
 
-#include "xtc_reader.h"
+#include "libxtc/xtc_reader.h"
 #include <filesystem>
 #include <iostream>
 
