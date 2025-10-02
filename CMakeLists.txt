@@ -29,6 +29,8 @@ add_library(xtc
     libxtc/xtc_unpack.h
     libxtc/xtc_reader.cpp
     libxtc/xtc_reader.h
+    libxtc/xtc_writer.cpp
+    libxtc/xtc_writer.h
 )
 
 # Set library properties

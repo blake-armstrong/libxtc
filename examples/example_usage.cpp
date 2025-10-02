@@ -3,6 +3,7 @@
  */
 
 #include "libxtc/xtc_reader.h"
+#include "libxtc/xtc_writer.h"
 #include <filesystem>
 #include <iostream>
 
@@ -13,6 +14,7 @@ int main() {
     fs::path CURRENT = __FILE__;
     fs::path EXAMPLES_DIR = CURRENT.parent_path().parent_path() / "examples";
     fs::path md_file = EXAMPLES_DIR / "md.xtc";
+
     // Example 1: Basic usage - read all frames
     std::cout << "=== Example 1: Reading all frames ===" << std::endl;
     XTCReader reader(md_file);
@@ -108,6 +110,61 @@ int main() {
 
     std::cout << "Scanned " << frame_count << " frames" << std::endl;
     std::cout << "Trajectory duration: " << total_time << " ps" << std::endl;
+
+    // Example 6: Write XTC
+    std::cout << "\n=== Example 6: Write XTC ===" << std::endl;
+    // Create writer with precision 1000.0
+    XTCWriter writer("output.xtc", 1000.0f);
+
+    // Define simulation box (cubic, 5.0 nm)
+    std::array<std::array<float, 3>, 3> box = {
+        {{{5.0f, 0.0f, 0.0f}}, {{0.0f, 5.0f, 0.0f}}, {{0.0f, 0.0f, 5.0f}}}};
+
+    // Number of atoms
+    const uint32_t natoms = 1000;
+    std::cout << "Writing " << natoms << " atoms" << std::endl;
+    const int nframes = 100;
+    std::cout << "Writing " << nframes << " frames" << std::endl;
+
+    // Write 100 frames
+    for (uint32_t frame = 0; frame < nframes; frame++) {
+      float time = frame * 0.002f; // 2 ps timestep
+
+      // Generate some example coordinates (random walk)
+      std::vector<float> coords(natoms * 3);
+      for (uint32_t i = 0; i < natoms; i++) {
+        // Simple trajectory: atoms moving in a circle
+        float angle = 2.0f * M_PI * i / natoms + time;
+        float radius = 2.0f;
+        coords[i * 3 + 0] = 2.5f + radius * std::cos(angle);
+        coords[i * 3 + 1] = 2.5f + radius * std::sin(angle);
+        coords[i * 3 + 2] = 2.5f + 0.1f * std::sin(time * 10.0f);
+      }
+
+      // Write frame with compression
+      if (!writer.write_frame(frame, time, box, coords, true)) {
+        std::cerr << "Failed to write frame " << frame << std::endl;
+        return 1;
+      }
+
+      if (frame % 10 == 0) {
+        std::cout << "Written frame " << frame << " at time " << time << " ps"
+                  << std::endl;
+      }
+    }
+
+    writer.close();
+    std::cout << "Successfully written 100 frames to output.xtc" << std::endl;
+
+    std::cout << "\n=== Example 7: Read written XTC ===" << std::endl;
+    XTCReader new_reader("output.xtc");
+    frame_count = 0;
+    while (!new_reader.eot()) {
+      new_reader.next_frame();
+      frame_count++;
+    }
+    std::cout << "Read atoms: " << new_reader.get_natoms() << std::endl;
+    std::cout << "Total frames: " << frame_count << std::endl;
 
   } catch (const std::exception &e) {
     std::cerr << "Error: " << e.what() << std::endl;
